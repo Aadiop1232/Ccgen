@@ -10,7 +10,7 @@ from telebot import types
 import random
 import re
 from datetime import datetime
-from gatet import Tele_gateway, generate_cards
+from gatet import Tele_gateway
 
 # -------------------- CONFIGURATION --------------------
 TOKEN = "7973439072:AAFhqqrP9-JMCyCW6ljpmLacvQwxTmFE_oc"  # Replace with your bot token
