@@ -3,13 +3,10 @@ import requests
 from fake_useragent import UserAgent
 import random
 import re
+import braintree
 
-def Tele(ccx):
-    """
-    Checks a single credit card via Stripe API simulation.
-    Expects input in the format: number|MM|YY|CVV.
-    Returns a dict containing either success data or an error.
-    """
+# ---------- Stripe Integration ----------
+def Tele_stripe(ccx):
     ccx = ccx.strip()
     parts = ccx.split("|")
     if len(parts) != 4:
@@ -37,13 +34,13 @@ def Tele(ccx):
         "&_stripe_version=2024-06-20"
     )
     try:
-        response = session.post("https://api.stripe.com/v1/payment_methods", data=data, timeout=15)
+        stripe_resp = session.post("https://api.stripe.com/v1/payment_methods", data=data, timeout=15)
     except requests.RequestException as e:
         return {"error": {"message": f"Network error: {e}"}}
     try:
-        stripe_json = response.json()
+        stripe_json = stripe_resp.json()
     except Exception:
-        return {"error": {"message": "Invalid response from payment gateway."}}
+        return {"error": {"message": "Invalid response from Stripe."}}
     if "id" not in stripe_json:
         return stripe_json
     stripe_id = stripe_json["id"]
@@ -76,4 +73,74 @@ def Tele(ccx):
     try:
         return response2.json()
     except Exception:
-        return {"error": {"message": "Failed to parse confirmation response."}}
+        return {"error": {"message": "Failed to parse Stripe confirmation response."}}
+
+# ---------- PayPal Integration (Simulated) ----------
+def Tele_paypal(ccx):
+    ccx = ccx.strip()
+    parts = ccx.split("|")
+    if len(parts) != 4:
+        return {"error": {"message": "Invalid card format. Use number|MM|YY|CVV."}}
+    n, mm, yy, cvp = parts
+    if len(yy) == 4 and yy.startswith("20"):
+        yy = yy[2:]
+    # Use the provided PayPal credentials:
+    client_id = "Aem9ad8jhaVDLl7JrumG_m0tmUmcbNKW7OgrwzYhP0AEmcpPpbjtvXHFv6kpXj0ARZntZBjihonTpzic"
+    secret = "EDGtJ3ENfgZrVlX3agtsvONcd62bFK21aPOnvIPhxAkOlsLGFITzn58xah0gJB0FN3pEp8CeMm6IOeyR"
+    # In a real integration, obtain an OAuth token from PayPal.
+    # Here we simulate a successful check.
+    try:
+        response = {"succeeded": True, "id": "paypal_token_simulated"}
+    except Exception as e:
+        return {"error": {"message": f"PayPal error: {e}"}}
+    return response
+
+# ---------- Braintree Integration ----------
+import braintree
+gateway = braintree.BraintreeGateway(
+    braintree.Configuration(
+        environment=braintree.Environment.Sandbox,
+        merchant_id="pvpkhy2ncw5sfvcj",
+        public_key="9nmpfntjwjgzz2hg",
+        private_key="e005c9dc7197bead355fbcc25db93844"
+    )
+)
+
+def Tele_braintree(ccx):
+    ccx = ccx.strip()
+    parts = ccx.split("|")
+    if len(parts) != 4:
+        return {"error": {"message": "Invalid card format. Use number|MM|YY|CVV."}}
+    number, mm, yy, cvv = parts
+    if len(yy) == 2:
+        yy = "20" + yy
+    expiration_date = f"{mm}/{yy}"
+    try:
+        result = gateway.payment_method.create({
+            "customer_id": "test_customer",  # In sandbox, ensure this customer exists or create one
+            "payment_method_nonce": "fake-valid-nonce",
+            "credit_card": {
+                "number": number,
+                "expiration_date": expiration_date,
+                "cvv": cvv
+            }
+        })
+    except Exception as e:
+        return {"error": {"message": f"Braintree error: {e}"}}
+    if result.is_success:
+        return {"succeeded": True, "id": result.payment_method.token}
+    else:
+        return {"error": {"message": result.message}}
+
+# ---------- Gateway Selector ----------
+def Tele_gateway(gateway, ccx):
+    gateway = gateway.lower()
+    if gateway == "stripe":
+        return Tele_stripe(ccx)
+    elif gateway == "paypal":
+        return Tele_paypal(ccx)
+    elif gateway == "braintree":
+        return Tele_braintree(ccx)
+    else:
+        return {"error": {"message": "Invalid gateway specified."}}
+            
