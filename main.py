@@ -234,7 +234,6 @@ def gen_cc_command(message):
     # Get BIN information for display
     bin_info = {}
     try:
-    try:
         bin_data_url = f"https://bins.antipublic.cc/bins/{bin_input[:6]}"
         bin_info = requests.get(bin_data_url).json()
     except Exception as e:
