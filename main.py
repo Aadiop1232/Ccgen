@@ -14,7 +14,7 @@ OWNER_ID = 7218606355
 
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 
-a
+
 APPROVED_USERS_FILE = "approved_users.txt"
 BANNED_USERS_FILE   = "banned_users.txt"
 
