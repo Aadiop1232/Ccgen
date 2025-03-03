@@ -240,15 +240,15 @@ def gen_cc_command(message):
         print(f"BIN Lookup Error: {e}")
     cards = generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount=quantity)
     card_lines = [f"<code>{card}</code>" for card in cards]
-    response_text = (
-        f"𝘽𝙞𝙣 ➻  <code>({bin_input})</code>  \n"
-        f"𝙂𝙚𝙣𝙚𝙧𝙖𝙩𝙚𝙙 ➻  ({quantity}) Cards:**\n" + "\n".join(card_lines)
-        f"𝙏𝙮𝙥𝙚 ➻  {bin_info.get('type', 'Unknown').title()}  \n"
-        f"𝘽𝙧𝙖𝙣𝙙 ➻  {bin_info.get('brand', 'Unknown').title()}  \n"
-        f"𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}  \n"
-        f"𝘾𝙤𝙪𝙣𝙩𝙧𝙮 ➻  {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
-            f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
-    )
+response_text = (
+    f"𝘽𝙞𝙣 ➻  <code>({bin_input})</code>  \n"
+    f"𝙂𝙚𝙣𝙚𝙧𝙖𝙩𝙚𝙙 ➻  ({quantity}) Cards:**\n" + "\n".join(card_lines) +
+    f"𝙏𝙮𝙥𝙚 ➻  {bin_info.get('type', 'Unknown').title()}  \n"
+    f"𝘽𝙧𝙖𝙣𝙙 ➻  {bin_info.get('brand', 'Unknown').title()}  \n"
+    f"𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}  \n"
+    f"𝘾𝙤𝙪𝙣𝙩𝙧𝙮 ➻  {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
+    f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
+)
     bot.send_message(message.chat.id, response_text)
 
 # -------------------- MASS CC CHECKING (FILE UPLOAD) --------------------
