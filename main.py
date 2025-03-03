@@ -89,12 +89,12 @@ def generate_cards(bin_input, fixed_month=None, fixed_year=None, fixed_cvv=None,
 def generate_approved_message(cc, response, bin_info, time_taken, requester):
     return (
         "𝘼𝙥𝙥𝙧𝙤𝙫𝙚𝙙 ✅\n\n"
-        f"• **Card:** <code>{cc}</code>\n"
-        f"• **Response:** {response}\n"
-        f"• **BIN Info:** {bin_info.get('type', 'Unknown')} - {bin_info.get('brand', 'Unknown')} - {bin_info.get('level', 'Unknown')}\n"
-        f"• **Issuer:** {bin_info.get('bank', 'Unknown')}\n"
-        f"• **Time:** {time_taken}\n"
-        f"• **Requested by:** {requester}\n"
+        f"• 𝘾𝙖𝙧𝙙 ➻ <code>{cc}</code>\n"
+        f"• 𝙍𝙚𝙨𝙥𝙤𝙣𝙨𝙚 ➻ {response}\n"
+        f"• 𝘽𝙞𝙣 𝙄𝙣𝙛𝙤 ➻ {bin_info.get('type', 'Unknown')} - {bin_info.get('brand', 'Unknown')} - {bin_info.get('level', 'Unknown')}\n"
+        f"• 𝙄𝙨𝙨𝙪𝙚𝙧 ➻ {bin_info.get('bank', 'Unknown')}\n"
+        f"• 𝙏𝙞𝙢𝙚 ➻ {time_taken}\n"
+        f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻ {requester}\n"
         "𝗕𝗼𝘁 𝗕𝘆: @MrLazyOp"
     )
 
@@ -107,8 +107,8 @@ def send_welcome(message):
         return
     if user_id not in approved_users:
         welcome_text = (
-            "👋 **Welcome to the CC Checker & Generator Bot!**\n\n"
-            "Please tap **Register** to start using all features or **Help** for command info."
+            "👋 Welcome to the CC Checker & Generator Bot!\n\n"
+            "Please tap Register to start using all features or Help for command info."
         )
         markup = types.InlineKeyboardMarkup()
         btn_reg = types.InlineKeyboardButton("Register ✅", callback_data="register")
@@ -187,12 +187,12 @@ def chk_cc_command(message):
             reason = result["error"].get("message", "Declined")
         msg = (
             "𝘿𝙚𝙘𝙡𝙞𝙣𝙚𝙙 ❌\n\n"
-            f"• **Card:** <code>{cc}</code>\n"
-            f"• **BIN Info:** {bin_info.get('type', 'Unknown')} - {bin_info.get('brand', 'Unknown')} - {bin_info.get('level', 'Unknown')}\n"
-            f"• **Issuer:** {bin_info.get('bank', 'Unknown')}\n"
-            f"• **Reason:** {reason}\n"
-            f"• **Time:** {elapsed}\n"
-            f"• **Requested by:** {requester}"
+            f"• 𝘾𝙖𝙧𝙙 ➻  <code>{cc}</code>\n"
+            f"• 𝘽𝙞𝙣 𝙄𝙣𝙛𝙤 ➻  {bin_info.get('type', 'Unknown')} - {bin_info.get('brand', 'Unknown')} - {bin_info.get('level', 'Unknown')}\n"
+            f"• 𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}\n"
+            f"• 𝙍𝙚𝙨𝙥𝙤𝙣𝙨𝙚 ➻  {reason}\n"
+            f"• 𝙏𝙞𝙢𝙚 ➻  {elapsed}\n"
+            f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
         )
     bot.send_message(message.chat.id, msg)
 
@@ -240,12 +240,13 @@ def gen_cc_command(message):
     cards = generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount=quantity)
     card_lines = [f"<code>{card}</code>" for card in cards]
     response_text = (
-        f"**BIN:** <code>{bin_input}</code>  \n"
-        f"**Type:** {bin_info.get('type', 'Unknown').title()}  \n"
-        f"**Brand:** {bin_info.get('brand', 'Unknown').title()}  \n"
-        f"**Issuer:** {bin_info.get('bank', 'Unknown')}  \n"
-        f"**Country:** {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
-        f"**Generated ({quantity}) Cards:**\n" + "\n".join(card_lines)
+        f"𝘽𝙞𝙣 ➻  <code>{bin_input}</code>  \n"
+        f"𝙂𝙚𝙣𝙚𝙧𝙖𝙩𝙚𝙙 ➻  ({quantity}) Cards:**\n" + "\n".join(card_lines)
+        f"𝙏𝙮𝙥𝙚 ➻  {bin_info.get('type', 'Unknown').title()}  \n"
+        f"𝘽𝙧𝙖𝙣𝙙 ➻  {bin_info.get('brand', 'Unknown').title()}  \n"
+        f"𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}  \n"
+        f"𝘾𝙤𝙪𝙣𝙩𝙧𝙮 ➻  {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
+            f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
     )
     bot.send_message(message.chat.id, response_text)
 
@@ -257,7 +258,7 @@ def mchk_command(message):
         bot.reply_to(message, "❌ You must be registered to use this command.")
         return
     expecting_mass_file[user_id] = True
-    bot.reply_to(message, "📄 **Please upload your TXT file** for mass checking. (Each line should be in the format: number|MM|YY|CVV. Maximum 1000 cards.)")
+    bot.reply_to(message, "📄 𝙿𝚕𝚎𝚊𝚜𝚎 𝚄𝚙𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚛 𝚃𝚡𝚝 𝙵𝚒𝚕𝚎 for mass checking. (Each line should be in the format: number|MM|YY|CVV. Maximum 1000 cards.)")
 
 @bot.message_handler(content_types=["document"])
 def handle_document(message):
@@ -341,19 +342,19 @@ def process_cards(message, file_path, user_id, status_msg_id):
                 mass_results[user_id]["dead"].append(cc)
         # Finished processing: send summary message with buttons
         summary_text = (
-            "👋 **Hey there! I have checked all your CC's and got these results:**\n\n"
-            f"• **Total CC's:** {mass_results[user_id]['total']}\n"
-            f"• **Approved CC's:** {len(mass_results[user_id]['approved'])}\n"
-            f"• **Dead CC's:** {len(mass_results[user_id]['dead'])}\n"
-            f"• **Unknown CC's:** {len(mass_results[user_id]['unknown'])}\n\n"
+            "👋 𝙷𝚎𝚢 𝚝𝚑𝚎𝚛𝚎! 𝙸 𝚑𝚊𝚟𝚎 𝚌𝚑𝚎𝚌𝚔𝚎𝚍 𝚊𝚕𝚕 𝚢𝚘𝚞𝚛 𝙲𝙲'𝚜 𝚊𝚗𝚍 𝚐𝚘𝚝 𝚝𝚑𝚎𝚜𝚎 𝚛𝚎𝚜𝚞𝚕𝚝𝚜 ⇩\n\n"
+            f"• 𝙏𝙤𝙩𝙖𝙡 𝘾𝙘'𝙨 ➻  {mass_results[user_id]['total']}\n"
+            f"• 𝘼𝙥𝙥𝙧𝙤𝙫𝙚𝙙 𝘾𝙘'𝙨 ➻ {len(mass_results[user_id]['approved'])}\n"
+            f"• 𝘿𝙚𝙖𝙙 𝘾𝙘'𝙨 ➻  {len(mass_results[user_id]['dead'])}\n"
+            f"• 𝙐𝙣𝙠𝙣𝙤𝙬𝙣 𝘾𝙘'𝙨 ➻  {len(mass_results[user_id]['unknown'])}\n\n"
             "Tap any button below to get a TXT file of that category."
         )
         summary_markup = types.InlineKeyboardMarkup(row_width=2)
         summary_markup.add(
-            types.InlineKeyboardButton(f"Total CC's: {mass_results[user_id]['total']}", callback_data=f"show_total_{user_id}"),
-            types.InlineKeyboardButton(f"Approved: {len(mass_results[user_id]['approved'])}", callback_data=f"show_approved_{user_id}"),
-            types.InlineKeyboardButton(f"Dead: {len(mass_results[user_id]['dead'])}", callback_data=f"show_dead_{user_id}"),
-            types.InlineKeyboardButton(f"Unknown: {len(mass_results[user_id]['unknown'])}", callback_data=f"show_unknown_{user_id}")
+            types.InlineKeyboardButton(f"𝙏𝙤𝙩𝙖𝙡 𝘾𝙘'𝙨 {mass_results[user_id]['total']}", callback_data=f"show_total_{user_id}"),
+            types.InlineKeyboardButton(f"𝘼𝙥𝙥𝙧𝙤𝙫𝙚𝙙 𝘾𝙘'𝙨 {len(mass_results[user_id]['approved'])}", callback_data=f"show_approved_{user_id}"),
+            types.InlineKeyboardButton(f"𝘿𝙚𝙖𝙙 𝘾𝙘'𝙨 {len(mass_results[user_id]['dead'])}", callback_data=f"show_dead_{user_id}"),
+            types.InlineKeyboardButton(f"𝙐𝙣𝙠𝙣𝙤𝙬𝙣 𝘾𝙘'𝙨 {len(mass_results[user_id]['unknown'])}", callback_data=f"show_unknown_{user_id}")
         )
         bot.send_message(message.chat.id, summary_text, reply_markup=summary_markup)
     except Exception as e:
