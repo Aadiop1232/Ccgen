@@ -1,4 +1,4 @@
-#Dev = @im_satyam_chauhan
+#Dev = @MrLazyOp
 #Channel = @MrLazyOp
 # Combined Bot: CC Checking & Generation with Improved UI
 
@@ -232,7 +232,8 @@ def gen_cc_command(message):
             fixed_cvv = subparts[3].strip()
 
     # Get BIN information for display
-    bin_info = {}
+
+bin_info = {}
     try:
         bin_data_url = f"https://bins.antipublic.cc/bins/{bin_input[:6]}"
         bin_info = requests.get(bin_data_url).json()
@@ -242,14 +243,13 @@ def gen_cc_command(message):
     card_lines = [f"<code>{card}</code>" for card in cards]
     response_text = (
         f"**BIN:** <code>{bin_input}</code>  \n"
-        f"**Generated ({quantity}) Cards:**\n" + "\n".join(card_lines)
         f"**Type:** {bin_info.get('type', 'Unknown').title()}  \n"
         f"**Brand:** {bin_info.get('brand', 'Unknown').title()}  \n"
         f"**Issuer:** {bin_info.get('bank', 'Unknown')}  \n"
         f"**Country:** {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
+        f"**Generated ({quantity}) Cards:**\n" + "\n".join(card_lines)
     )
     bot.send_message(message.chat.id, response_text)
-
 
 # -------------------- MASS CC CHECKING (FILE UPLOAD) --------------------
 @bot.message_handler(commands=["mchk"])
