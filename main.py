@@ -231,15 +231,17 @@ def gen_cc_command(message):
         if len(subparts) >= 4 and re.fullmatch(r"\d{3,4}", subparts[3].strip()):
             fixed_cvv = subparts[3].strip()
 
-    # Get BIN information for display
-    bin_info = {}
-    try:
-        bin_data_url = f"https://bins.antipublic.cc/bins/{bin_input[:6]}"
-        bin_info = requests.get(bin_data_url).json()
-    except Exception as e:
-        print(f"BIN Lookup Error: {e}")
-    cards = generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount=quantity)
-    card_lines = [f"<code>{card}</code>" for card in cards]
+# Get BIN information for display
+bin_info = {}
+try:
+    bin_data_url = f"https://bins.antipublic.cc/bins/{bin_input[:6]}"
+    bin_info = requests.get(bin_data_url).json()
+except Exception as e:
+    print(f"BIN Lookup Error: {e}")
+
+cards = generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount=quantity)
+card_lines = [f"<code>{card}</code>" for card in cards]
+
 response_text = (
     f"𝘽𝙞𝙣 ➻  <code>({bin_input})</code>  \n"
     f"𝙂𝙚𝙣𝙚𝙧𝙖𝙩𝙚𝙙 ➻  ({quantity}) Cards:**\n" + "\n".join(card_lines) +
@@ -248,8 +250,10 @@ response_text = (
     f"𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}  \n"
     f"𝘾𝙤𝙪𝙣𝙩𝙧𝙮 ➻  {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
     f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
-        )
-    bot.send_message(message.chat.id, msg)
+)
+
+bot.send_message(message.chat.id, response_text)
+
 
 # -------------------- MASS CC CHECKING (FILE UPLOAD) --------------------
 @bot.message_handler(commands=["mchk"])
