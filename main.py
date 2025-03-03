@@ -248,8 +248,8 @@ response_text = (
     f"𝙄𝙨𝙨𝙪𝙚𝙧 ➻  {bin_info.get('bank', 'Unknown')}  \n"
     f"𝘾𝙤𝙪𝙣𝙩𝙧𝙮 ➻  {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}  \n\n"
     f"• 𝙍𝙚𝙦𝙪𝙚𝙨𝙩𝙚𝙙 𝘽𝙮 ➻  {requester}"
-)
- bot.send_message(message.chat.id, response_text)
+        )
+    bot.send_message(message.chat.id, msg)
 
 # -------------------- MASS CC CHECKING (FILE UPLOAD) --------------------
 @bot.message_handler(commands=["mchk"])
