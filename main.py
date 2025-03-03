@@ -130,26 +130,27 @@ def handle_registration(call):
     save_user(APPROVED_USERS_FILE, user_id)
     approved_users.add(user_id)
     bot.answer_callback_query(call.id, "✅ Registration successful!")
-    bot.send_message(call.message.chat.id, "✅ **Registration successful!** You can now use all commands.")
+    bot.send_message(call.message.chat.id, "✅ Registration successful! You can now use all commands.")
 
 @bot.callback_query_handler(func=lambda call: call.data == "help")
 def handle_help(call):
     help_text = (
-        "📚 **Available Commands:**\n\n"
-        "• **/start** – Start the bot & get the welcome message with registration/help buttons.\n"
-        "• **/mchk** – Initiate mass CC checking. (Then upload a TXT file with one card per line, up to **1000** cards.)\n"
-        "• **/chk <cc>** – Check a single credit card. (Format: number|MM|YY|CVV)\n"
-        "• **/gen <BIN> [quantity] [CVV|MM|YY]** – Generate CCs. (Example: `/gen 440066 20` or `/gen 440066 15|387`)\n"
-        "\nWhen mass checking, after processing, you'll get a summary with buttons:\n"
-        "   • **Total CC's**\n"
-        "   • **Approved CC's**\n"
-        "   • **Dead CC's**\n"
-        "   • **Unknown CC's**\n\n"
-        "Tap any button to receive a TXT file of those cards.\n\n"
-        "Use the **[ STOP 🛑 ]** button during mass checking to cancel the process."
+        "𝙰𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎 𝙲𝚘𝚖𝚖𝚊𝚗𝚍𝚜:\n\n"
+        "• 𝚂𝚝𝚊𝚛𝚝 – Start the bot & view the welcome message with registration/help buttons.\n"
+        "• 𝙼𝚌𝚑𝚔 – Initiate mass CC checking. Then upload a TXT file (max 1000 cards, one per line, format: number|MM|YY|CVV).\n"
+        "• 𝙲𝚑𝚔 <cc> – Check a single credit card. (Format: number|MM|YY|CVV)\n"
+        "• 𝙶𝚎𝚗 <BIN> [quantity] [CVV|MM|YY] – Generate CCs. (Examples: /gen 440066 20 or /gen 440066 15|387)\n\n"
+        "After mass checking, you'll get a summary with buttons:\n"
+        "   • 𝚃𝚘𝚝𝚊𝚕 CC's\n"
+        "   • 𝙰𝚙𝚙𝚛𝚘𝚟𝚎𝚍 CC's\n"
+        "   • 𝙳𝚎𝚊𝚍 CC's\n"
+        "   • 𝚄𝚗𝚔𝚗𝚘𝚠𝚗 CC's\n\n"
+        "Tap a button to receive a TXT file of that category.\n"
+        "Use the [ STOP 🛑 ] button during mass checking to cancel."
     )
-    bot.answer_callback_query(call.id, "Help info sent!")
+    bot.answer_callback_query(call.id, "Help information sent!")
     bot.send_message(call.message.chat.id, help_text)
+    
 
 # -------------------- SINGLE CARD CHECKING --------------------
 @bot.message_handler(commands=["chk"])
