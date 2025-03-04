@@ -13,7 +13,7 @@ from datetime import datetime
 from gatet import Tele_gateway
 
 # -------------------- CONFIGURATION --------------------
-TOKEN = "7973439072:AAFhqqrP9-JMCyCW6ljpmLacvQwxTmFE_oc"  # Replace with your bot token
+TOKEN = "7973439072:AAEptM0ocO_bD_boLffKySQvI_p2Ta6t-AY"  # Replace with your bot token
 OWNER_ID = 7218606355          # Replace with your Telegram numeric user ID
 
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
@@ -42,6 +42,39 @@ banned_users = load_users(BANNED_USERS_FILE)
 def save_user(file_path, user_id):
     with open(file_path, "a") as f:
         f.write(f"{user_id}\n")
+
+# -------------------- START & REGISTRATION COMMAND --------------------
+@bot.message_handler(commands=["start"])
+def start_command(message):
+    user_id = str(message.from_user.id)
+    if user_id in approved_users:
+        bot.reply_to(message, "You are already registered. Use /help to continue.")
+    else:
+        approved_users.add(user_id)
+        with open(APPROVED_USERS_FILE, "a") as f:
+            f.write(user_id + "\n")
+        bot.reply_to(message, "Welcome, you have been registered! Use /help to continue.")
+
+# -------------------- UNBAN COMMAND (Admin Only) --------------------
+@bot.message_handler(commands=["unban"])
+def unban_command(message):
+    if str(message.from_user.id) != str(OWNER_ID):
+        bot.reply_to(message, "🚫 You are not authorized to use this command.")
+        return
+    parts = message.text.split(" ", 1)
+    if len(parts) < 2 or not parts[1].strip().isdigit():
+        bot.reply_to(message, "Usage: /unban <user_id>")
+        return
+    target_id = parts[1].strip()
+    if target_id in banned_users:
+        banned_users.remove(target_id)
+        # Overwrite the banned users file with the updated list
+        with open(BANNED_USERS_FILE, "w") as f:
+            for uid in banned_users:
+                f.write(uid + "\n")
+        bot.reply_to(message, f"✅ User {target_id} has been unbanned.")
+    else:
+        bot.reply_to(message, f"User {target_id} is not banned.")
 
 # -------------------- CARD GENERATION FUNCTIONS --------------------
 def random_int(min_val, max_val):
@@ -123,7 +156,7 @@ def format_declined(cc, bin_info, elapsed, requester, gateway_command, reason):
     )
 
 def format_generation(bin_input, quantity, cards, bin_info, elapsed):
-    card_lines = "\n".join([f"{card}" for card in cards])
+    card_lines = "\n".join(cards)
     return (
         "✅ 𝐂𝐂 𝐆𝐞𝐧𝐞𝐫𝐚𝐭𝐢𝐨𝐧 𝐂𝐨𝐦𝐩𝐥𝐞𝐭𝐞 🔥\n"
         "--------------------------------------------------\n"
@@ -351,6 +384,7 @@ def ban_command(message):
     save_user(BANNED_USERS_FILE, target_id)
     bot.reply_to(message, f"✅ User {target_id} has been banned.")
 
+# -------------------- UPDATED SEND COMMAND (Admin Only) --------------------
 @bot.message_handler(commands=["send"])
 def admin_send(message):
     if str(message.from_user.id) != str(OWNER_ID):
@@ -361,12 +395,24 @@ def admin_send(message):
         bot.reply_to(message, "Usage: /send <message>")
         return
     broadcast_msg = parts[1]
+    successful = []
+    failed = []
     for uid in approved_users:
         try:
+            # Attempt to get chat info to retrieve username (if available)
+            chat = bot.get_chat(uid)
+            name = chat.username if chat.username else chat.first_name
             bot.send_message(uid, f"📢 Broadcast ➻\n{broadcast_msg}")
+            successful.append(f"{uid} ({name})")
         except Exception as e:
             print(f"Failed to send to {uid}: {e}")
-    bot.reply_to(message, "✅ Message sent to all approved users.")
+            failed.append(uid)
+    response = f"✅ Message sent to {len(successful)} users.\n"
+    if successful:
+        response += "Recipients:\n" + "\n".join(successful)
+    if failed:
+        response += "\nFailed to send to:\n" + "\n".join(failed)
+    bot.reply_to(message, response)
 
 # -------------------- CC GENERATION --------------------
 @bot.message_handler(commands=["gen"])
@@ -402,16 +448,10 @@ def gen_cc_command(message):
         bin_info = requests.get(bin_data_url).json()
     except Exception as e:
         print(f"BIN Lookup Error: {e}")
+    start_time = time.time()
     cards = generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount=quantity)
-    card_lines = [f"<code>{card}</code>" for card in cards]
-    response_text = (
-        f"Bin ➻ <code>{bin_input}</code>\n"
-        f"Generated ➻ ({quantity}) Cards:\n" + "\n".join(card_lines) +
-        f"\nType ➻ {bin_info.get('type', 'Unknown').title()}\n"
-        f"Brand ➻ {bin_info.get('brand', 'Unknown').title()}\n"
-        f"Issuer ➻ {bin_info.get('bank', 'Unknown')}\n"
-        f"Country ➻ {bin_info.get('country_name', 'Unknown')} {bin_info.get('country_flag', '')}\n"
-    )
+    elapsed = f"{time.time() - start_time:.2f}"
+    response_text = format_generation(bin_input, quantity, cards, bin_info, elapsed)
     bot.send_message(message.chat.id, response_text)
 
 # -------------------- HELP COMMAND --------------------
@@ -433,6 +473,7 @@ def help_command(message):
         "<b>Other:</b>\n"
         "/status - Check processing status for mass checking\n"
         "/ban <code>user_id</code> - Ban a user (admin only)\n"
+        "/unban <code>user_id</code> - Unban a user (admin only)\n"
         "/send <code>message</code> - Broadcast a message to all approved users (admin only)\n\n"
         "Note: You must be approved to use these commands. Contact the admin for access."
     )
@@ -440,4 +481,3 @@ def help_command(message):
 
 # -------------------- START THE BOT --------------------
 bot.polling(none_stop=True)
-    
