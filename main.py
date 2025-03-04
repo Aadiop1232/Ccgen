@@ -72,6 +72,16 @@ def generate_month():
 def generate_year():
     return f"{(datetime.now().year + random_int(1, 5)) % 100:02d}"
 
+def generate_cards(bin_input, fixed_month=None, fixed_year=None, fixed_cvv=None, amount=10):
+    cards = []
+    for _ in range(amount):
+        card_num = generate_card(bin_input)
+        month = fixed_month if fixed_month is not None else generate_month()
+        year = fixed_year if fixed_year is not None else generate_year()
+        cvv = fixed_cvv if fixed_cvv is not None else generate_cvv()
+        cards.append(f"{card_num}|{month}|{year}|{cvv}")
+    return cards
+
 def generate_cards_custom(bin_input, fixed_month=None, fixed_year=None, fixed_cvv=None, amount=10):
     return generate_cards(bin_input, fixed_month, fixed_year, fixed_cvv, amount)
 
@@ -140,11 +150,7 @@ def process_single_cc(message, gateway, command_label):
     if len(parts) < 2 or not parts[1].strip():
         bot.reply_to(message, f"❌ Provide a card to check. Example: {command_label} 4111111111111111|12|25|123")
         return
-    # If a gateway is provided in the command, use it; else default to the command's gateway
-    if len(parts) == 2:
-        cc = parts[1].strip()
-    else:
-        cc = parts[2].strip()
+    cc = parts[1].strip() if len(parts) == 2 else parts[2].strip()
     requester = message.from_user.username or message.from_user.first_name or str(message.from_user.id)
     start_time = time.time()
     bin_info = {}
@@ -159,7 +165,7 @@ def process_single_cc(message, gateway, command_label):
         print(f"Error in Tele: {e}")
         result = {"error": {"message": "Card check failed."}}
     elapsed = f"{time.time() - start_time:.2f}"
-    if "succeeded" in str(result).lower():
+    if isinstance(result, dict) and result.get("succeeded") is True:
         msg = format_approved(cc, bin_info, elapsed, requester, command_label)
     else:
         reason = "Declined"
@@ -186,7 +192,7 @@ def initiate_mass_check(message, gateway, command_label):
     if user_id in banned_users or user_id not in approved_users:
         bot.reply_to(message, "❌ You must be registered to use this command.")
         return
-    expecting_mass_file[user_id] = gateway  # store which gateway to use
+    expecting_mass_file[user_id] = gateway
     bot.reply_to(message, f"📄 Please upload your TXT file for mass checking using {command_label}.\nFormat: number|MM|YY|CVV (max 1000 cards).")
 
 @bot.message_handler(commands=["mstr"])
@@ -222,7 +228,6 @@ def handle_document(message):
     file_path = f"combo_{user_id}.txt"
     with open(file_path, "wb") as f:
         f.write(downloaded_file)
-    # Limit file to 1000 lines
     with open(file_path, "r") as f:
         lines = f.readlines()
     if len(lines) > 1000:
@@ -269,7 +274,7 @@ def process_mass_check(message, file_path, user_id, status_msg_id, gateway):
                 print(f"Tele error: {e}")
                 result = {"error": {"message": "Request failed."}}
             elapsed = f"{time.time() - start_card:.2f}"
-            if "succeeded" in str(result).lower():
+            if isinstance(result, dict) and result.get("succeeded") is True:
                 mass_results[user_id]["approved"].append(cc)
                 approved_msg = format_approved(cc, bin_info, elapsed, message.from_user.username or message.from_user.first_name, f"/{gateway[:4]}")
                 bot.send_message(message.chat.id, approved_msg)
@@ -299,7 +304,7 @@ def show_results_callback(call):
     parts = call.data.split("_")
     if len(parts) < 3:
         return
-    category = parts[1]  # approved, dead, unknown
+    category = parts[1]
     user_id = parts[2]
     results = mass_results.get(user_id, {}).get(category, [])
     if not results:
@@ -341,7 +346,6 @@ def ban_command(message):
         return
     target_id = parts[1].strip()
     banned_users.add(target_id)
-    # Optionally, remove from approved_users:
     if target_id in approved_users:
         approved_users.remove(target_id)
     save_user(BANNED_USERS_FILE, target_id)
@@ -410,6 +414,30 @@ def gen_cc_command(message):
     )
     bot.send_message(message.chat.id, response_text)
 
+# -------------------- HELP COMMAND --------------------
+@bot.message_handler(commands=["help"])
+def help_command(message):
+    help_text = (
+        "🤖 <b>CC Checker & Generator Bot Help</b>\n\n"
+        "<b>CC Checking:</b>\n"
+        "/str <code>card|MM|YY|CVV</code> - Check card via Stripe\n"
+        "/b3 <code>card|MM|YY|CVV</code> - Check card via Braintree\n"
+        "/pp <code>card|MM|YY|CVV</code> - Check card via PayPal (simulated)\n\n"
+        "<b>Mass CC Checking:</b>\n"
+        "/mstr - Initiate mass checking via Stripe (upload a TXT file with one card per line)\n"
+        "/mb3 - Initiate mass checking via Braintree\n"
+        "/mpp - Initiate mass checking via PayPal\n\n"
+        "<b>CC Generation:</b>\n"
+        "/gen <code>BIN [quantity]</code> - Generate credit card details using BIN. "
+        "Optionally, include fixed month, year, CVV in the format: BIN|MM|YY|CVV\n\n"
+        "<b>Other:</b>\n"
+        "/status - Check processing status for mass checking\n"
+        "/ban <user_id> - Ban a user (admin only)\n"
+        "/send <message> - Broadcast a message to all approved users (admin only)\n\n"
+        "Note: You must be approved to use these commands. Contact the admin for access."
+    )
+    bot.reply_to(message, help_text)
+
 # -------------------- START THE BOT --------------------
 bot.polling(none_stop=True)
-            
+        
