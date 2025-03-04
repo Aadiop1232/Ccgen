@@ -71,7 +71,10 @@ def Tele_stripe(ccx):
     except requests.RequestException as e:
         return {"error": {"message": f"Network error: {e}"}}
     try:
-        return response2.json()
+        stripe_response = response2.json()
+        if "error" not in stripe_response:
+            stripe_response["succeeded"] = True
+        return stripe_response
     except Exception:
         return {"error": {"message": "Failed to parse Stripe confirmation response."}}
 
@@ -96,7 +99,6 @@ def Tele_paypal(ccx):
     return response
 
 # ---------- Braintree Integration ----------
-import braintree
 gateway = braintree.BraintreeGateway(
     braintree.Configuration(
         environment=braintree.Environment.Sandbox,
@@ -143,4 +145,4 @@ def Tele_gateway(gateway, ccx):
         return Tele_braintree(ccx)
     else:
         return {"error": {"message": "Invalid gateway specified."}}
-            
+    
