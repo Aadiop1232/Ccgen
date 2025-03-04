@@ -455,4 +455,19 @@ def help_command(message):
         "/str <code>card|MM|YY|CVV</code> - Check card via Stripe\n"
         "/b3 <code>card|MM|YY|CVV</code> - Check card via Braintree\n\n"
         "<b>Mass CC Checking:</b>\n"
-        "/mstr - Initiate ma
+        "/mstr - Initiate mass checking via Stripe (upload a TXT file with one card per line)\n"
+        "/mb3 - Initiate mass checking via Braintree\n\n"
+        "<b>CC Generation:</b>\n"
+        "/gen <code>BIN [quantity]</code> - Generate credit card details using BIN. "
+        "Optionally, include fixed month, year, CVV in the format: BIN|MM|YY|CVV\n\n"
+        "<b>Other:</b>\n"
+        "/status - Check processing status for mass checking\n"
+        "/ban <code>user_id</code> - Ban a user (admin only)\n"
+        "/unban <code>user_id</code> - Unban a user (admin only)\n"
+        "/send <code>message</code> - Broadcast a message to all approved users (admin only)\n\n"
+        "Note: You must be approved to use these commands. Contact the admin for access."
+    )
+    bot.reply_to(message, help_text)
+
+# -------------------- START THE BOT --------------------
+bot.polling(none_stop=True)
