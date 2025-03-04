@@ -87,16 +87,15 @@ def Tele_paypal(ccx):
     n, mm, yy, cvp = parts
     if len(yy) == 4 and yy.startswith("20"):
         yy = yy[2:]
-    # Use the provided PayPal credentials:
-    client_id = "Aem9ad8jhaVDLl7JrumG_m0tmUmcbNKW7OgrwzYhP0AEmcpPpbjtvXHFv6kpXj0ARZntZBjihonTpzic"
-    secret = "EDGtJ3ENfgZrVlX3agtsvONcd62bFK21aPOnvIPhxAkOlsLGFITzn58xah0gJB0FN3pEp8CeMm6IOeyR"
-    # In a real integration, obtain an OAuth token from PayPal.
-    # Here we simulate a successful check.
+    # Simulate a more realistic PayPal check:
+    # Approve if the last digit of the card number is even; decline otherwise.
     try:
-        response = {"succeeded": True, "id": "paypal_token_simulated"}
+        if int(n[-1]) % 2 == 0:
+            return {"succeeded": True, "id": "paypal_token_simulated"}
+        else:
+            return {"error": {"message": "Card declined by simulated PayPal gateway."}}
     except Exception as e:
         return {"error": {"message": f"PayPal error: {e}"}}
-    return response
 
 # ---------- Braintree Integration ----------
 gateway = braintree.BraintreeGateway(
@@ -118,19 +117,16 @@ def Tele_braintree(ccx):
         yy = "20" + yy
     expiration_date = f"{mm}/{yy}"
     try:
-        result = gateway.payment_method.create({
+        result = gateway.credit_card.create({
             "customer_id": "test_customer",  # In sandbox, ensure this customer exists or create one
-            "payment_method_nonce": "fake-valid-nonce",
-            "credit_card": {
-                "number": number,
-                "expiration_date": expiration_date,
-                "cvv": cvv
-            }
+            "number": number,
+            "expiration_date": expiration_date,
+            "cvv": cvv
         })
     except Exception as e:
         return {"error": {"message": f"Braintree error: {e}"}}
     if result.is_success:
-        return {"succeeded": True, "id": result.payment_method.token}
+        return {"succeeded": True, "id": result.credit_card.token}
     else:
         return {"error": {"message": result.message}}
 
@@ -145,4 +141,4 @@ def Tele_gateway(gateway, ccx):
         return Tele_braintree(ccx)
     else:
         return {"error": {"message": "Invalid gateway specified."}}
-    
+            
