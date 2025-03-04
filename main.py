@@ -432,12 +432,12 @@ def help_command(message):
         "Optionally, include fixed month, year, CVV in the format: BIN|MM|YY|CVV\n\n"
         "<b>Other:</b>\n"
         "/status - Check processing status for mass checking\n"
-        "/ban <user_id> - Ban a user (admin only)\n"
-        "/send <message> - Broadcast a message to all approved users (admin only)\n\n"
+        "/ban <code>user_id</code> - Ban a user (admin only)\n"
+        "/send <code>message</code> - Broadcast a message to all approved users (admin only)\n\n"
         "Note: You must be approved to use these commands. Contact the admin for access."
     )
     bot.reply_to(message, help_text)
 
 # -------------------- START THE BOT --------------------
 bot.polling(none_stop=True)
-        
+    
