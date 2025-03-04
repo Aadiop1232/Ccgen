@@ -1,4 +1,5 @@
-#Dev = @im_satyam_chauhan
+#Dev = @MrLazyOp
+#Note :- Just Edit The Highlited Things Otherwise The bot will not work
 #Channel = @MrLazyOp
 # Combined Bot: CC Checking, Generation, & Broadcast with Multi-Gateway Support
 
@@ -26,7 +27,7 @@ approved_users = set()
 banned_users = set()
 processing = {}            # For mass checking file processing per user
 stop_processing = {}       # To signal stopping mass checking per user
-expecting_mass_file = {}   # Tracks gateway for mass check: "stripe", "braintree", "paypal"
+expecting_mass_file = {}   # Tracks gateway for mass check: "stripe", "braintree"
 mass_results = {}          # Store mass check results for each user
 
 def load_users(file_path):
@@ -215,10 +216,6 @@ def chk_stripe(message):
 def chk_braintree(message):
     process_single_cc(message, "braintree", "/b3")
 
-@bot.message_handler(commands=["pp"])
-def chk_paypal(message):
-    process_single_cc(message, "paypal", "/pp")
-
 # -------------------- MASS CC CHECKING COMMANDS --------------------
 def initiate_mass_check(message, gateway, command_label):
     user_id = str(message.from_user.id)
@@ -235,10 +232,6 @@ def mchk_stripe(message):
 @bot.message_handler(commands=["mb3"])
 def mchk_braintree(message):
     initiate_mass_check(message, "braintree", "/mb3")
-
-@bot.message_handler(commands=["mpp"])
-def mchk_paypal(message):
-    initiate_mass_check(message, "paypal", "/mpp")
 
 @bot.message_handler(content_types=["document"])
 def handle_document(message):
@@ -399,7 +392,6 @@ def admin_send(message):
     failed = []
     for uid in approved_users:
         try:
-            # Attempt to get chat info to retrieve username (if available)
             chat = bot.get_chat(uid)
             name = chat.username if chat.username else chat.first_name
             bot.send_message(uid, f"📢 Broadcast ➻\n{broadcast_msg}")
@@ -461,23 +453,6 @@ def help_command(message):
         "🤖 <b>CC Checker & Generator Bot Help</b>\n\n"
         "<b>CC Checking:</b>\n"
         "/str <code>card|MM|YY|CVV</code> - Check card via Stripe\n"
-        "/b3 <code>card|MM|YY|CVV</code> - Check card via Braintree\n"
-        "/pp <code>card|MM|YY|CVV</code> - Check card via PayPal (simulated)\n\n"
+        "/b3 <code>card|MM|YY|CVV</code> - Check card via Braintree\n\n"
         "<b>Mass CC Checking:</b>\n"
-        "/mstr - Initiate mass checking via Stripe (upload a TXT file with one card per line)\n"
-        "/mb3 - Initiate mass checking via Braintree\n"
-        "/mpp - Initiate mass checking via PayPal\n\n"
-        "<b>CC Generation:</b>\n"
-        "/gen <code>BIN [quantity]</code> - Generate credit card details using BIN. "
-        "Optionally, include fixed month, year, CVV in the format: BIN|MM|YY|CVV\n\n"
-        "<b>Other:</b>\n"
-        "/status - Check processing status for mass checking\n"
-        "/ban <code>user_id</code> - Ban a user (admin only)\n"
-        "/unban <code>user_id</code> - Unban a user (admin only)\n"
-        "/send <code>message</code> - Broadcast a message to all approved users (admin only)\n\n"
-        "Note: You must be approved to use these commands. Contact the admin for access."
-    )
-    bot.reply_to(message, help_text)
-
-# -------------------- START THE BOT --------------------
-bot.polling(none_stop=True)
+        "/mstr - Initiate ma
